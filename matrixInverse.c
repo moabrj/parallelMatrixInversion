@@ -29,6 +29,42 @@ void write(){
 	}
 }
 
+void augmentingmatrix(){
+	for(i=0;i<dimension; i++)
+		for(j=dimension; j<2*dimension; j++)
+			if(i==j%dimension) augmentedmatrix[i][j]=1;
+			else augmentedmatrix[i][j]=0;
+}
+
+void findPivo(){
+	temp=j;
+	for(i=j+1; i<dimension; i++)
+		if(augmentedmatrix[i][j]>augmentedmatrix[temp][j])
+			temp=i;
+}
+
+void swapLine(){
+	if(temp!=j)
+		for(k=0; k<2*dimension; k++){
+			temporary=augmentedmatrix[j][k];
+			augmentedmatrix[j][k]=augmentedmatrix[temp][k];
+			augmentedmatrix[temp][k]=temporary;
+	}
+}
+
+void calcInverse(){
+	for(i=0; i<dimension; i++)
+		if(i!=j){
+			r=augmentedmatrix[i][j];
+			for(k=0; k<2*dimension; k++)
+				augmentedmatrix[i][k]-=(augmentedmatrix[j][k]/augmentedmatrix[j][j])*r;
+		}else {
+			r=augmentedmatrix[i][j];
+			for(k=0; k<2*dimension; k++)
+				augmentedmatrix[i][k]/=r;
+		}
+}
+
 int main(int argc, char *argv[]){
 	
 	file = fopen("matrix.txt", "r");
@@ -41,39 +77,14 @@ int main(int argc, char *argv[]){
 	dimension = atoi(argv[1]);
 	makeMatrix();
 	read();
-
-	for(i=0;i<dimension; i++)
-		for(j=dimension; j<2*dimension; j++)
-			if(i==j%dimension)
-				augmentedmatrix[i][j]=1;
-			else
-				augmentedmatrix[i][j]=0;
+	augmentingmatrix();
 
 	for(j=0; j<dimension; j++){
-		temp=j;
-		for(i=j+1; i<dimension; i++)
-			if(augmentedmatrix[i][j]>augmentedmatrix[temp][j])
-                temp=i;
-
-			if(temp!=j)
-				for(k=0; k<2*dimension; k++){
-					temporary=augmentedmatrix[j][k];
-					augmentedmatrix[j][k]=augmentedmatrix[temp][k];
-					augmentedmatrix[temp][k]=temporary;
-            }
-
-			for(i=0; i<dimension; i++)
-				if(i!=j){
-					r=augmentedmatrix[i][j];
-					for(k=0; k<2*dimension; k++)
-						augmentedmatrix[i][k]-=(augmentedmatrix[j][k]/augmentedmatrix[j][j])*r;
-				}else {
-					r=augmentedmatrix[i][j];
-					for(k=0; k<2*dimension; k++)
-						augmentedmatrix[i][k]/=r;
-				}
-
+		findPivo();
+		swapLine();
+		calcInverse();
 	}
+	
 	write();
 	fclose( file );
 	fclose( fileOut );
