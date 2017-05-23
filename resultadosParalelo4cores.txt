@@ -1,0 +1,25 @@
+1000x1000
+real	0m15.451s
+user	0m45.909s
+sys	0m0.096s
+
+2000x2000
+real	1m30.401s
+user	5m46.422s
+sys	0m0.435s
+
+3000x3000
+real	5m9.165s
+user	20m6.054s
+sys	0m0.658s
+
+4000x4000
+real 12m19.0817s
+user 47m26.680s
+sys 0m0.292s
+
+5000x5000
+real 23m39.874s
+user 93m30.533s
+sys 0m2.508s
+
