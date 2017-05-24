@@ -15,6 +15,11 @@ sys	0m0.812s
 
 
 4000x4000
-
+real	13m10.361s
+user	25m3.216s
+sys	0m2.112s
 
 5000x5000
+real	26m18.132s
+user	50m1.044s
+sys	0m3.920s
