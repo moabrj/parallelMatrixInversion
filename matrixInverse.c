@@ -7,6 +7,7 @@ int i, j, k, dimension, temp;
 FILE *file;
 FILE *fileOut;
 
+/*Aloca o espaço de memória para armazenar a matriz aumentada*/
 void makeMatrix() {
 	int i;
     augmentedmatrix = (double **)malloc(sizeof(double)*dimension);
@@ -15,12 +16,14 @@ void makeMatrix() {
     }
 }
 
+/*Faz a leitura da mariz a partir do arquivo de entrada*/
 void read(){
 	for(i=0; i<dimension; i++)
 		for(j=0; j<dimension; j++)
 			fscanf(file,"%lf",&augmentedmatrix[i][j]);
 }
 
+/*Escreve a matriz inversa no arquivo de saida*/
 void write(){
 	for(i=0; i<dimension; i++){
 		for(j=dimension; j<2*dimension; j++)
@@ -29,6 +32,7 @@ void write(){
 	}
 }
 
+/*Gera os valores da matriz aumentada adicionando a matriz identidade no fim da matriz de entrada*/
 void augmentingmatrix(){
 	for(i=0;i<dimension; i++)
 		for(j=dimension; j<2*dimension; j++)
@@ -36,6 +40,7 @@ void augmentingmatrix(){
 			else augmentedmatrix[i][j]=0;
 }
 
+/*Encontra o proximo elemento que vai ser utilizado como pivô*/
 void findPivo(){
 	temp=j;
 	for(i=j+1; i<dimension; i++)
@@ -43,6 +48,7 @@ void findPivo(){
 			temp=i;
 }
 
+/*Realiza a troca de linhas se o pivô não pertencer a linha atual*/
 void swapLine(){
 	if(temp!=j)
 		for(k=0; k<2*dimension; k++){
@@ -52,19 +58,21 @@ void swapLine(){
 	}
 }
 
+/*Realiza o calculo dos novos valores para cada linha da matriz aumentada, gerando a matriz inversa*/
 void calcInverse(){
 	for(i=0; i<dimension; i++)
-		if(i!=j){
+		if(i!=j){ //verifica se é a linha atual.
 			r=augmentedmatrix[i][j];
 			for(k=0; k<2*dimension; k++)
-				augmentedmatrix[i][k]-=(augmentedmatrix[j][k]/augmentedmatrix[j][j])*r;
+				augmentedmatrix[i][k]-=(augmentedmatrix[j][k]/augmentedmatrix[j][j])*r; //calcula o novo valor para as linhas diferentes da atual.
 		}else {
 			r=augmentedmatrix[i][j];
 			for(k=0; k<2*dimension; k++)
-				augmentedmatrix[i][k]/=r;
+				augmentedmatrix[i][k]/=r; //divide os elementos da linha atual pelo pivô.
 		}
 }
 
+/*Função main. Recebe como parametro a dimensão da matriz*/
 int main(int argc, char *argv[]){
 	
 	file = fopen("matrix.txt", "r");
