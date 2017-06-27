@@ -66,7 +66,8 @@ void swapLine(){
 
 /*Realiza o calculo dos novos valores para cada linha da matriz aumentada, gerando a matriz inversa*/
 void calcInverse(){
-	for(i=0; i<dimension; i++){
+    MPI_Bcast (augmentedmatrix,dimension*dimension*2,MPI_DOUBLE,0,MPI_COMM_WORLD);    	
+    for(i=0; i<dimension; i++){
 		if(i!=j){ //verifica se é a linha atual.
 			r=augmentedmatrix[i][j];
 			for(k=0; k<2*dimension; k++){
@@ -92,7 +93,7 @@ int main(int argc, char *argv[]){
 	}
 	
 	if (rank==0){
-		dimension = atoi(argv[1]);
+	    dimension = atoi(argv[1]);
 	    file = fopen("matrix.txt", "r");
 	    fileOut = fopen("inverse.txt", "w");
 	    makeMatrix();
@@ -103,19 +104,24 @@ int main(int argc, char *argv[]){
     }
 	MPI_Bcast (&dimension, 1, MPI_INT, 0, MPI_COMM_WORLD); 
 	MPI_Bcast (&r, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);   
-    MPI_Bcast (&temp, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Bcast (&temp, 1, MPI_INT, 0, MPI_COMM_WORLD);
+	 MPI_Bcast (augmentedmatrix,dimension*dimension*2,MPI_DOUBLE,0,MPI_COMM_WORLD);
 	if(rank != 0){
-		makeMatrix();
+	    makeMatrix();
 	}
 	//MPI_Bcast (augmentedmatrix,dimension*dimension*2,MPI_DOUBLE,0,MPI_COMM_WORLD);
-	for(j=0; j<dimension; j++){   
-		findPivo();
-		swapLine();
-		calcInverse();
+	if(rank == 0){
+	    for(j=0; j<dimension; j++){   
+	        findPivo();
+	        swapLine();
+	    }
 	}
+	for(j=0; j<dimension; j++){
+	    calcInverse();
+	}
+	
 	if(rank==0){
 	    inicio_fim = clock() - inicio_fim;
-	
 	    write();
 	    fclose( file );
 	    fclose( fileOut );
