@@ -14,6 +14,7 @@ MPI_Status status;
 
 /*Aloca o espaço de memória para armazenar a matriz aumentada*/
 void makeMatrix() {
+	//printf("MAKE MATRIX\n");
 	int i;
     augmentedmatrix = (double **)malloc(sizeof(double)*dimension);
     for(i = 0; i < dimension; i++) {         
@@ -23,6 +24,7 @@ void makeMatrix() {
 
 /*Faz a leitura da mariz a partir do arquivo de entrada*/
 void read(){
+	//printf("READ\n");
 	for(i=0; i<dimension; i++)
 		for(j=0; j<dimension; j++)
 			fscanf(file,"%lf",&augmentedmatrix[i][j]);
@@ -40,6 +42,7 @@ void write(){
 
 /*Gera os valores da matriz aumentada adicionando a matriz identidade no fim da matriz de entrada*/
 void augmentingmatrix(){
+	//printf("AUGMENTINGMATRIX\n");
 	for(i=0;i<dimension; i++)
 		for(j=dimension; j<2*dimension; j++)
 			if(i==j%dimension) augmentedmatrix[i][j]=1;
@@ -48,6 +51,7 @@ void augmentingmatrix(){
 
 /*Encontra o proximo elemento que vai ser utilizado como pivô*/
 void findPivo(){
+	//printf("FIND PIVO\n");
 	if(rank==0){
 		temp=j;
 		for(i=j+1; i<dimension; i++){
@@ -60,6 +64,7 @@ void findPivo(){
 
 /*Realiza a troca de linhas se o pivô não pertencer a linha atual*/
 void swapLine(){
+	//printf("SWAP LINE\n");
 	if(rank==0){
 		if(temp!=j){
 			for(k=0; k<2*dimension; k++){
@@ -73,22 +78,30 @@ void swapLine(){
 
 /*Realiza o calculo dos novos valores para cada linha da matriz aumentada, gerando a matriz inversa*/
 void calcInverse(){
-    MPI_Bcast (augmentedmatrix,dimension*dimension*2,MPI_DOUBLE,0,MPI_COMM_WORLD); 	   
+    MPI_Bcast (&augmentedmatrix[0][0],dimension*dimension*2,MPI_DOUBLE,0,MPI_COMM_WORLD); 	   
     MPI_Bcast (&j, 1, MPI_INT, 0, MPI_COMM_WORLD);
+       
+    //printf("CALC INVERSE\n");
     for(i=0; i<dimension; i++){
 		if(i%nprocs==rank){
-			printf("My rank is: %d and I am calculating i: %d", rank, i);
+			//printf("My rank is: %d and I am calculating i: %d \n", rank, i);
+			//printf("i: %d j:%d k: %d r: %lf dimension: %d augmented: %lf \n", i, j, k, r, dimension, augmentedmatrix[i][j]);
 			if(i!=j){ //verifica se é a linha atual.
+				//printf("r: %lf augmented: %lf\n", r, augmentedmatrix[i][j]);
 				r=augmentedmatrix[i][j];
+				//printf("r: %lf augmented: %lf\n", r, augmentedmatrix[i][j]);
 				for(k=0; k<2*dimension; k++){
 					augmentedmatrix[i][k]-=(augmentedmatrix[j][k]/augmentedmatrix[j][j])*r; //calcula o novo valor para as linhas diferentes da atual.
 				}
 			}else {
+				//printf("r: %lf augmented: %lf\n", r, augmentedmatrix[i][j]);
 				r=augmentedmatrix[i][j];
+				//printf("r: %lf augmented: %lf\n", r, augmentedmatrix[i][j]);
 				for(k=0; k<2*dimension; k++){
 					augmentedmatrix[i][k]/=r; //divide os elementos da linha atual pelo pivô.
 				}
 			}
+			//printf("fim for\n");
 		}
 	}
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -128,6 +141,7 @@ int main(int argc, char *argv[]){
 	
 	if(rank==0){
 	    inicio_fim = clock() - inicio_fim;
+	    printf("Matrix size %d x %d nprocs: %d time: %d\n", dimension, dimension, nprocs, inicio_fim);
 	    write();
 	    fclose( file );
 	    fclose( fileOut );
