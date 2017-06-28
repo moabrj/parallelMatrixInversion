@@ -91,7 +91,7 @@ void calcInverse(){
 			}
 		}
 	}
-	MPI_BARRIER(MPI_COMM_WORLD);
+	MPI_Barrier(MPI_COMM_WORLD);
 }
 
 /*Função main. Recebe como parametro a dimensão da matriz*/
