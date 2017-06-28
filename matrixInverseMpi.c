@@ -37,7 +37,7 @@ void write(){
 			fprintf(fileOut,"%.5lf ",augmentedmatrix[i][j]);
 		fprintf(fileOut,"\n");
 	}
-	fprintf(fileOut,"inicio_fim:%d\n", inicio_fim);
+	//fprintf(fileOut,"inicio_fim:%d\n", inicio_fim);
 }
 
 /*Gera os valores da matriz aumentada adicionando a matriz identidade no fim da matriz de entrada*/
@@ -141,8 +141,8 @@ int main(int argc, char *argv[]){
 	
 	if(rank==0){
 	    fim = clock();
-		total = (double) (fim - inicio) /  CLOCKS_PER_SEC;
-	    printf("Matrix size %d x %d nprocs: %d time: %.2f s\n", dimension, dimension, nprocs, total);
+		total = (double) (fim - inicio)/CLOCKS_PER_SEC;
+	    printf("Matrix size %d x %d nprocs: %d time: %ds\n", dimension, dimension, nprocs, total);
 	    write();
 	    fclose( file );
 	    fclose( fileOut );
