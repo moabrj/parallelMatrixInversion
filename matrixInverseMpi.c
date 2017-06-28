@@ -9,7 +9,7 @@ int i, j, k, dimension, temp;
 FILE *file;
 FILE *fileOut;
 int rank, nprocs;
-clock_t inicio_fim;
+clock_t inicio, fim, total;
 MPI_Status status;
 
 /*Aloca o espaço de memória para armazenar a matriz aumentada*/
@@ -128,7 +128,7 @@ int main(int argc, char *argv[]){
 	if(rank==0){
 		read();
 		augmentingmatrix();
-    	inicio_fim = clock();
+    	inicio = clock();
     }
     
 	MPI_Bcast (&r, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);   
@@ -140,8 +140,9 @@ int main(int argc, char *argv[]){
 	}
 	
 	if(rank==0){
-	    inicio_fim = clock() - inicio_fim;
-	    printf("Matrix size %d x %d nprocs: %d time: %d\n", dimension, dimension, nprocs, inicio_fim);
+	    fim = clock();
+		total = (double) (fim - inicio) /  CLOCKS_PER_SEC;
+	    printf("Matrix size %d x %d nprocs: %d time: %.2f s\n", dimension, dimension, nprocs, total);
 	    write();
 	    fclose( file );
 	    fclose( fileOut );
