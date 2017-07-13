@@ -79,40 +79,51 @@ void swapLine(){
 /*Realiza o calculo dos novos valores para cada linha da matriz aumentada, gerando a matriz inversa*/
 void calcInverse(){
     //MPI_Bcast (&augmentedmatrix[0][0],dimension*dimension*2,MPI_DOUBLE,0,MPI_COMM_WORLD); 	   
-    MPI_Bcast (&j, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    //MPI_Bcast (&j, 1, MPI_INT, 0, MPI_COMM_WORLD);
        
     //printf("CALC INVERSE\n");
-    for(i=0; i<dimension; i++){
-		if(rank==0 && (i%nprocs)!=0){
-			MPI_Send (&augmentedmatrix[i][0],dimension*2,MPI_DOUBLE,i%nprocs,0,MPI_COMM_WORLD);		
-		}
-		if(i%nprocs==rank){
-		    if((i%nprocs)!=0)
-		        MPI_Recv (&augmentedmatrix[i][0],dimension*2,MPI_DOUBLE,0,0,MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-			printf("My rank is: %d and I am calculating i: %d j: %d\n", rank, i, j);
-			printf("i: %d j:%d k: %d r: %lf dimension: %d augmented: %lf \n", i, j, k, r, dimension, augmentedmatrix[i][j]);
+    
+    int size = dimension / nprocs;
+    int nn;
+    for (nn=1; nn<nprocs; nn++){
+	    if(rank==0){
+		    MPI_Send (&augmentedmatrix[nn][0],dimension*2*size,MPI_DOUBLE,nn,0,MPI_COMM_WORLD);		
+	    }
+	}
+	if(rank!=0)
+        MPI_Recv (&augmentedmatrix[rank][0],dimension*2*size,MPI_DOUBLE,0,0,MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			
+    for(i=size*rank; i<((size*rank)+size); i++){
+		//if(i%nprocs==rank){
+		    //printf("My rank is: %d and I am calculating i: %d j: %d\n", rank, i, j);
+			//printf("i: %d j:%d k: %d r: %lf dimension: %d augmented: %lf \n", i, j, k, r, dimension, augmentedmatrix[i][j]);
 			if(i!=j){ //verifica se é a linha atual.
-				printf("r: %lf augmented: %lf\n", r, augmentedmatrix[i][j]);
+				//printf("r: %lf augmented: %lf\n", r, augmentedmatrix[i][j]);
 				r=augmentedmatrix[i][j];
-				printf("r: %lf augmented: %lf\n", r, augmentedmatrix[i][j]);
+				//printf("r: %lf augmented: %lf\n", r, augmentedmatrix[i][j]);
 				for(k=0; k<2*dimension; k++){
 					augmentedmatrix[i][k]-=(augmentedmatrix[j][k]/augmentedmatrix[j][j])*r; //calcula o novo valor para as linhas diferentes da atual.
 				}
 			}else {
-				printf("r: %lf augmented: %lf\n", r, augmentedmatrix[i][j]);
+				//printf("r: %lf augmented: %lf\n", r, augmentedmatrix[i][j]);
 				r=augmentedmatrix[i][j];
-				printf("r: %lf augmented: %lf\n", r, augmentedmatrix[i][j]);
+				//printf("r: %lf augmented: %lf\n", r, augmentedmatrix[i][j]);
 				for(k=0; k<2*dimension; k++){
 					augmentedmatrix[i][k]/=r; //divide os elementos da linha atual pelo pivô.
 				}
 			}
-			printf("fim for\n");
-			if((i%nprocs)!=0)
-			    MPI_Send (&augmentedmatrix[i][0],dimension*2,MPI_DOUBLE,0,0,MPI_COMM_WORLD);	
-		}
-		if(rank==0 && (i%nprocs)!=0){
+			//printf("fim for\n");
+		//}
+		/*if(rank==0){
 			MPI_Recv (&augmentedmatrix[i][0],dimension*2,MPI_DOUBLE,i%nprocs,0,MPI_COMM_WORLD, MPI_STATUS_IGNORE);		
-		}
+		}*/
+	}
+	if(rank!=0)
+	    MPI_Send (&augmentedmatrix[rank][0],dimension*2*size,MPI_DOUBLE,0,0,MPI_COMM_WORLD);	
+	for (nn=1; nn<nprocs; nn++){
+	    if(rank==0){
+		    MPI_Recv (&augmentedmatrix[nn][0],dimension*2*size,MPI_DOUBLE,nn,0,MPI_COMM_WORLD, MPI_STATUS_IGNORE);		
+	    }
 	}
 	MPI_Barrier(MPI_COMM_WORLD);
 }
@@ -142,11 +153,17 @@ int main(int argc, char *argv[]){
     }
     
 	MPI_Bcast (&r, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);   
-    	MPI_Bcast (&temp, 1, MPI_INT, 0, MPI_COMM_WORLD);
-	MPI_Bcast (&augmentedmatrix[0][0],dimension*dimension*2,MPI_DOUBLE,0,MPI_COMM_WORLD);
-	for(j=0; j<dimension; j++){   
-	    findPivo();
-	    swapLine();
+    MPI_Bcast (&temp, 1, MPI_INT, 0, MPI_COMM_WORLD);
+	//MPI_Bcast (&augmentedmatrix[0][0],dimension*dimension*2,MPI_DOUBLE,0,MPI_COMM_WORLD);
+	
+	if(rank==0){
+	    for(j=0; j<dimension; j++){   
+	        findPivo();
+	        swapLine();
+	    }
+	}
+	
+	for(j=0; j<dimension; j++){ 
 	    calcInverse();
 	}
 	
