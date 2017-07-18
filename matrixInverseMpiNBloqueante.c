@@ -14,7 +14,6 @@ MPI_Status status;
 
 /*Aloca o espaço de memória para armazenar a matriz aumentada*/
 void makeMatrix() {
-	//printf("MAKE MATRIX\n");
 	int i;
     augmentedmatrix = (double **)malloc(sizeof(double)*dimension);
     for(i = 0; i < dimension; i++) {         
@@ -24,7 +23,6 @@ void makeMatrix() {
 
 /*Faz a leitura da mariz a partir do arquivo de entrada*/
 void read(){
-	//printf("READ\n");
 	for(i=0; i<dimension; i++)
 		for(j=0; j<dimension; j++)
 			fscanf(file,"%lf",&augmentedmatrix[i][j]);
@@ -37,7 +35,6 @@ void write(){
 			fprintf(fileOut,"%.5lf ",augmentedmatrix[i][j]);
 		fprintf(fileOut,"\n");
 	}
-	//fprintf(fileOut,"inicio_fim:%d\n", inicio_fim);
 }
 
 /*Gera os valores da matriz aumentada adicionando a matriz identidade no fim da matriz de entrada*/
