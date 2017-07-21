@@ -134,15 +134,12 @@ int main(int argc, char *argv[]){
     
 	MPI_Bcast (&r, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);   
     MPI_Bcast (&temp, 1, MPI_INT, 0, MPI_COMM_WORLD);
-	
-	if(rank==0){
-	    for(j=0; j<dimension; j++){   
-	        findPivo();
-	        swapLine();
-	    }
-	}
-	
+
 	for(j=0; j<dimension; j++){ 
+		if(rank==0){  
+	        	findPivo();
+	        	swapLine();
+		}
 	    calcInverse();
 	}
 	
