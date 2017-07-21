@@ -142,6 +142,10 @@ int main(int argc, char *argv[]){
 	}
 	
 	for(j=0; j<dimension; j++){ 
+		if(rank==0){
+	        findPivo();
+	        swapLine();
+		}
 	    calcInverse();
 	}
 	
