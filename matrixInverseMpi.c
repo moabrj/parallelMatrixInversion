@@ -39,7 +39,6 @@ void write(){
 
 /*Gera os valores da matriz aumentada adicionando a matriz identidade no fim da matriz de entrada*/
 void augmentingmatrix(){
-	//printf("AUGMENTINGMATRIX\n");
 	for(i=0;i<dimension; i++)
 		for(j=dimension; j<2*dimension; j++)
 			if(i==j%dimension) augmentedmatrix[i][j]=1;
@@ -78,9 +77,11 @@ void calcInverse(){
     int nn;
     for (nn=1; nn<nprocs; nn++){
 	    if(rank==0){
+			/* Envia um bloco da matriz para todos os processos exceto o master*/
 		    MPI_Send (&augmentedmatrix[nn][0],dimension*2*size,MPI_DOUBLE,nn,0,MPI_COMM_WORLD);		
 	    }
 	}
+	/* Os processos recebem a mensagem enviada pelo master*/
 	if(rank!=0)
         MPI_Recv (&augmentedmatrix[rank][0],dimension*2*size,MPI_DOUBLE,0,0,MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 			
@@ -97,13 +98,17 @@ void calcInverse(){
 				}
 			}
 	}
+
+	/* Os processos enviam o resultado para o master*/
 	if(rank!=0)
 	    MPI_Send (&augmentedmatrix[rank][0],dimension*2*size,MPI_DOUBLE,0,0,MPI_COMM_WORLD);	
 	for (nn=1; nn<nprocs; nn++){
 	    if(rank==0){
+			/*O master recebe os resultados de todos os processos*/
 		    MPI_Recv (&augmentedmatrix[nn][0],dimension*2*size,MPI_DOUBLE,nn,0,MPI_COMM_WORLD, MPI_STATUS_IGNORE);		
 	    }
 	}
+	/* Sincronização da interação */
 	MPI_Barrier(MPI_COMM_WORLD);
 }
 
