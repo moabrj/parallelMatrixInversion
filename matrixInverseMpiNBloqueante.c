@@ -78,9 +78,11 @@ void calcInverse(){
 	MPI_Request send_request,recv_request;
     for (nn=0; nn<nprocs; nn++){
 	    if(rank==0){
+		    /* Envia um bloco da matriz para todos os processos exceto o master*/
 		    MPI_Isend (&augmentedmatrix[nn][0],dimension*2*size,MPI_DOUBLE,nn,0,MPI_COMM_WORLD, &send_request);		
 	    }
 	}
+	/* Os processos recebem a mensagem enviada pelo master*/
 	if(rank!=0)
         MPI_Irecv (&augmentedmatrix[rank][0],dimension*2*size,MPI_DOUBLE,0,0,MPI_COMM_WORLD, &recv_request);
 			
@@ -98,13 +100,16 @@ void calcInverse(){
 			}
 	}
 
+	/* Os processos enviam o resultado para o master*/
 	if(rank!=0)
 	    MPI_Isend (&augmentedmatrix[rank-1][0],dimension*2*size,MPI_DOUBLE,0,0,MPI_COMM_WORLD, &send_request);	
 	for (nn=1; nn<nprocs; nn++){
 	    if(rank==0){
+		    /*O master recebe os resultados de todos os processos*/
 		    MPI_Irecv (&augmentedmatrix[nn][0],dimension*2*size,MPI_DOUBLE,nn,0,MPI_COMM_WORLD, &recv_request);		
 	    }
 	}
+	/* Sincronização da interação */
 	MPI_Barrier(MPI_COMM_WORLD);
 }
 
